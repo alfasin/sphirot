@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התפצלות הספירות - Sephirot Tree</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e4e4e4;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .breadcrumb {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .breadcrumb span {
+            color: #ffd700;
+            cursor: pointer;
+        }
+
+        .breadcrumb span:hover {
+            text-decoration: underline;
+        }
+
+        .level-info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+
+        .sephirot-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .sephira {
+            background: linear-gradient(145deg, #2d2d44, #1f1f35);
+            border: 2px solid #4a4a6a;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sephira:hover {
+            transform: translateY(-5px);
+            border-color: #ffd700;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .sephira::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+        }
+
+        .sephira .name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .sephira .hebrew {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .sephira .full-name {
+            font-size: 12px;
+            color: #ffd700;
+            font-style: italic;
+        }
+
+        .sephira.keter { border-color: #9b59b6; }
+        .sephira.chochma { border-color: #3498db; }
+        .sephira.bina { border-color: #1abc9c; }
+        .sephira.daat { border-color: #e74c3c; }
+        .sephira.chesed { border-color: #2ecc71; }
+        .sephira.gevura { border-color: #e67e22; }
+        .sephira.tiferet { border-color: #f1c40f; }
+        .sephira.netzah { border-color: #e74c3c; }
+        .sephira.hod { border-color: #9b59b6; }
+        .sephira.yesod { border-color: #1abc9c; }
+        .sephira.malchut { border-color: #ecf0f1; }
+
+        .sephira.keter::before { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+        .sephira.chochma::before { background: linear-gradient(90deg, #3498db, #2980b9); }
+        .sephira.bina::before { background: linear-gradient(90deg, #1abc9c, #16a085); }
+        .sephira.daat::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .sephira.chesed::before { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+        .sephira.gevura::before { background: linear-gradient(90deg, #e67e22, #d35400); }
+        .sephira.tiferet::before { background: linear-gradient(90deg, #f1c40f, #f39c12); }
+        .sephira.netzah::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .sephira.hod::before { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+        .sephira.yesod::before { background: linear-gradient(90deg, #1abc9c, #16a085); }
+        .sephira.malchut::before { background: linear-gradient(90deg, #ecf0f1, #bdc3c7); }
+
+        .instructions {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            color: #ffd700;
+        }
+
+        @media (max-width: 600px) {
+            .sephirot-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>עץ החיים - התפצלות הספירות</h1>
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="level-info" id="levelInfo"></div>
+    <div class="sephirot-grid" id="grid"></div>
+    <div class="instructions">
+        לחץ על ספירה כדי לראות את התפצלותה לעשר ספירות נוספות
+    </div>
+
+    <script>
+        const sephirot = [
+            { id: 'keter', name: 'כתר', fullName: 'כתר', category: 'soul' },
+            { id: 'chochma', name: 'חכמה', fullName: 'חכמה', category: 'soul' },
+            { id: 'bina', name: 'בינה', fullName: 'בינה', category: 'soul' },
+            { id: 'daat', name: 'דעת', fullName: 'דעת', category: 'soul' },
+            { id: 'chesed', name: 'חסד', fullName: 'חסד', category: 'spirit' },
+            { id: 'gevura', name: 'גבורה', fullName: 'גבורה', category: 'spirit' },
+            { id: 'tiferet', name: 'תפארת', fullName: 'תפארת', category: 'spirit' },
+            { id: 'netzah', name: 'נצח', fullName: 'נצח', category: 'soul' },
+            { id: 'hod', name: 'הוד', fullName: 'הוד', category: 'soul' },
+            { id: 'yesod', name: 'יסוד', fullName: 'יסוד', category: 'soul' },
+            { id: 'malchut', name: 'מלכות', fullName: 'מלכות', category: 'soul' }
+        ];
+
+        let currentPath = [];
+        let depth = 0;
+
+        function getFullName(path, sephira) {
+            if (path.length === 0) return sephira.name;
+            const pathNames = path.map(p => p.name);
+            return `${sephira.name} שב${pathNames.join(' שב')}`;
+        }
+
+        function renderBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            if (currentPath.length === 0) {
+                breadcrumb.innerHTML = 'בחר ספירה להתחיל';
+                return;
+            }
+            
+            let html = '<span onclick="reset()">ראשי</span>';
+            currentPath.forEach((sep, idx) => {
+                html += ' > ';
+                const pathCopy = currentPath.slice(0, idx + 1);
+                html += `<span onclick="navigateTo(${idx})">${sep.fullName}</span>`;
+            });
+            breadcrumb.innerHTML = html;
+        }
+
+        function navigateTo(index) {
+            currentPath = currentPath.slice(0, index + 1);
+            depth = currentPath.length;
+            render();
+        }
+
+        function reset() {
+            currentPath = [];
+            depth = 0;
+            render();
+        }
+
+        function render() {
+            const grid = document.getElementById('grid');
+            const levelInfo = document.getElementById('levelInfo');
+            
+            renderBreadcrumb();
+            
+            if (depth === 0) {
+                levelInfo.textContent = 'עשר הספירות הראשיות';
+            } else {
+                levelInfo.textContent = `רמה ${depth}: ${currentPath.map(p => p.name).join(' > ')}`;
+            }
+
+            grid.innerHTML = sephirot.map(sep => {
+                const fullName = getFullName(currentPath, sep);
+                return `
+                    <div class="sephira ${sep.id}" onclick="select('${sep.id}')">
+                        <div class="name">${sep.name}</div>
+                        <div class="hebrew">ספירת ה${sep.category === 'soul' ? 'נשמה' : sep.category === 'spirit' ? 'רוח' : ''}</div>
+                        <div class="full-name">${fullName}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function select(id) {
+            const sephira = sephirot.find(s => s.id === id);
+            const fullName = getFullName(currentPath, sephira);
+            currentPath.push({ id: sephira.id, name: sephira.name, fullName: fullName });
+            depth++;
+            render();
+        }
+
+        render();
+    </script>
+</body>
+</html>
