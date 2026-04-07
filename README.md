@@ -1,6 +1,8 @@
-# התפצלות הספירות
+<p align="center">
+<img src="favicon.png" width="64" height="64">
+</p>
 
-![favicon](favicon.png)
+# התפצלות הספירות
 
 אתר אינטראקטיבי המציג את עץ החיים הקבלי והתפצלות הספירות.
 
