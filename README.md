@@ -1,5 +1,5 @@
 <p align="center">
-<img src="favicon.png" width="64" height="64">
+<img src="sephirot-rm.jpg" width="300">
 </p>
 
 # התפצלות הספירות
